@@ -1,8 +1,10 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { mockEmployees } from '../data/mockEmployees';
 
 interface Employee {
+  id?: string; // Optionnel pour la compatibilité avec les nouveaux employés ajoutés
   firstName: string;
   lastName: string;
   startDate: string;
@@ -22,20 +24,16 @@ interface EmployeeContextType {
 const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
 
 export function EmployeeProvider({ children }: { children: ReactNode }) {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-
-  // Charger les employés depuis le localStorage au démarrage
-  useEffect(() => {
-    const storedEmployees = localStorage.getItem('employees');
-    if (storedEmployees) {
-      setEmployees(JSON.parse(storedEmployees));
-    }
-  }, []);
+  const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
 
   const addEmployee = (employee: Employee) => {
-    const newEmployees = [...employees, employee];
+    // Générer un ID unique si non fourni
+    const employeeWithId = {
+      ...employee,
+      id: employee.id || `emp${Date.now().toString()}`
+    };
+    const newEmployees = [...employees, employeeWithId];
     setEmployees(newEmployees);
-    localStorage.setItem('employees', JSON.stringify(newEmployees));
   };
 
   return (

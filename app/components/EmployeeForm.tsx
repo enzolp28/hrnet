@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useEmployees } from '../context/EmployeeContext';
-import Modal from './Modal';
+// import Modal from './Modal';
+import  {Modal}  from 'enzo-ts-rc';
 // import { Modal} from 'enzolp-p14-react-library';
 import { Button } from 'enzolp-p14-react-library'
 import { states } from '../data/states';

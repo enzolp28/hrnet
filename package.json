@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "enzo-ts-rc": "^0.0.9",
     "enzolp-p14-react-library": "^0.0.6",
     "next": "15.1.7",
     "react": "^19.0.0",
