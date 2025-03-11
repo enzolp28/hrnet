@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 
 interface Employee {
   firstName: string;
@@ -102,6 +103,9 @@ export default function EmployeeList({ employees }: EmployeeListProps) {
   return (
     <div className="w-full p-4">
       <div className="mb-4 flex justify-between items-center">
+        <Link href="/" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+          ← Return to Form
+        </Link>
         <div className="flex items-center">
           <label className="mr-2">Show entries:</label>
           <select
