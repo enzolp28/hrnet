@@ -8,6 +8,9 @@ import  {Modal}  from 'enzo-ts-rc';
 import { Button } from 'enzolp-p14-react-library'
 import { states } from '../data/states';
 import Select from './Select';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
 const departments = [
   { value: 'Sales', label: 'Sales' },
@@ -22,57 +25,44 @@ const stateOptions = states.map(state => ({
   label: state.name
 }));
 
+// Define the Zod schema for form validation
+const employeeSchema = z.object({
+  firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
+  lastName: z.string().min(2, { message: "Last name must be at least 2 characters" }),
+  dateOfBirth: z.string().refine(val => {
+    const date = new Date(val);
+    const today = new Date();
+    return date < today && date > new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+  }, { message: "Please enter a valid date of birth" }),
+  startDate: z.string().refine(val => {
+    const date = new Date(val);
+    return !isNaN(date.getTime());
+  }, { message: "Please enter a valid start date" }),
+  street: z.string().min(1, { message: "Street is required" }),
+  city: z.string().min(1, { message: "City is required" }),
+  state: z.string().min(1, { message: "State is required" }),
+  zipCode: z.string().regex(/^\d{5}$/, { message: "Zip code must be 5 digits" }),
+  department: z.string().min(1, { message: "Department is required" })
+});
+
+// Type for the form data based on the schema
+type EmployeeFormData = z.infer<typeof employeeSchema>;
+
 export default function EmployeeForm() {
   const [showModal, setShowModal] = useState(false);
   const [selectedState, setSelectedState] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    dateOfBirth: '',
-    startDate: '',
-    street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    department: ''
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    const fieldMap: { [key: string]: string } = {
-      'first-name': 'firstName',
-      'last-name': 'lastName',
-      'date-of-birth': 'dateOfBirth',
-      'start-date': 'startDate',
-      'zip-code': 'zipCode',
-      'street': 'street',
-      'city': 'city'
-    };
-
-    const fieldName = fieldMap[id] || id;
-    setFormData(prev => ({
-      ...prev,
-      [fieldName]: value
-    }));
-  };
-
-  const { addEmployee } = useEmployees();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const newEmployee = {
-      ...formData,
-      state: selectedState,
-      department: selectedDepartment
-    };
-
-    // Ajouter le nouvel employé via le Context
-    addEmployee(newEmployee);
-    
-    // Réinitialiser le formulaire
-    setFormData({
+  
+  // Initialize react-hook-form with zod validation
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue
+  } = useForm<EmployeeFormData>({
+    resolver: zodResolver(employeeSchema),
+    defaultValues: {
       firstName: '',
       lastName: '',
       dateOfBirth: '',
@@ -82,16 +72,39 @@ export default function EmployeeForm() {
       state: '',
       zipCode: '',
       department: ''
-    });
+    }
+  });
+
+  // Update form values when select components change
+  const handleStateChange = (value: string) => {
+    setSelectedState(value);
+    setValue('state', value, { shouldValidate: true });
+  };
+
+  const handleDepartmentChange = (value: string) => {
+    setSelectedDepartment(value);
+    setValue('department', value, { shouldValidate: true });
+  };
+
+  const { addEmployee } = useEmployees();
+
+  // Form submission handler with validation
+  const onSubmit = (data: EmployeeFormData) => {
+    // Add the new employee via Context
+    addEmployee(data);
+    
+    // Reset the form
+    reset();
     setSelectedState('');
     setSelectedDepartment('');
     
+    // Show success modal
     setShowModal(true);
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
@@ -100,10 +113,12 @@ export default function EmployeeForm() {
             <input
               type="text"
               id="first-name"
-              value={formData.firstName}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              {...register('firstName')}
+              className={`mt-1 block w-full rounded-md ${errors.firstName ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-green-500 focus:ring-green-500`}
             />
+            {errors.firstName && (
+              <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
+            )}
           </div>
 
           <div>
@@ -113,10 +128,12 @@ export default function EmployeeForm() {
             <input
               type="text"
               id="last-name"
-              value={formData.lastName}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              {...register('lastName')}
+              className={`mt-1 block w-full rounded-md ${errors.lastName ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-green-500 focus:ring-green-500`}
             />
+            {errors.lastName && (
+              <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
+            )}
           </div>
 
           <div>
@@ -126,10 +143,12 @@ export default function EmployeeForm() {
             <input
               type="date"
               id="date-of-birth"
-              value={formData.dateOfBirth}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              {...register('dateOfBirth')}
+              className={`mt-1 block w-full rounded-md ${errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-green-500 focus:ring-green-500`}
             />
+            {errors.dateOfBirth && (
+              <p className="mt-1 text-sm text-red-600">{errors.dateOfBirth.message}</p>
+            )}
           </div>
 
           <div>
@@ -139,10 +158,12 @@ export default function EmployeeForm() {
             <input
               type="date"
               id="start-date"
-              value={formData.startDate}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              {...register('startDate')}
+              className={`mt-1 block w-full rounded-md ${errors.startDate ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-green-500 focus:ring-green-500`}
             />
+            {errors.startDate && (
+              <p className="mt-1 text-sm text-red-600">{errors.startDate.message}</p>
+            )}
           </div>
         </div>
         <Button />
@@ -156,10 +177,12 @@ export default function EmployeeForm() {
               <input
                 type="text"
                 id="street"
-                value={formData.street}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                {...register('street')}
+                className={`mt-1 block w-full rounded-md ${errors.street ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-green-500 focus:ring-green-500`}
               />
+              {errors.street && (
+                <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
+              )}
             </div>
 
             <div>
@@ -169,10 +192,12 @@ export default function EmployeeForm() {
               <input
                 type="text"
                 id="city"
-                value={formData.city}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                {...register('city')}
+                className={`mt-1 block w-full rounded-md ${errors.city ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-green-500 focus:ring-green-500`}
               />
+              {errors.city && (
+                <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
+              )}
             </div>
 
           
@@ -181,8 +206,11 @@ export default function EmployeeForm() {
                 label="State"
                 options={stateOptions}
                 value={selectedState}
-                onChange={setSelectedState}
+                onChange={handleStateChange}
               />
+              {errors.state && (
+                <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+              )}
             
 
             <div>
@@ -190,12 +218,14 @@ export default function EmployeeForm() {
                 Zip Code
               </label>
               <input
-                type="number"
+                type="text"
                 id="zip-code"
-                value={formData.zipCode}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                {...register('zipCode')}
+                className={`mt-1 block w-full rounded-md ${errors.zipCode ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-green-500 focus:ring-green-500`}
               />
+              {errors.zipCode && (
+                <p className="mt-1 text-sm text-red-600">{errors.zipCode.message}</p>
+              )}
             </div>
           </div>
         </fieldset>
@@ -205,8 +235,11 @@ export default function EmployeeForm() {
             label="Department"
             options={departments}
             value={selectedDepartment}
-            onChange={setSelectedDepartment}
+            onChange={handleDepartmentChange}
           />
+          {errors.department && (
+            <p className="mt-1 text-sm text-red-600">{errors.department.message}</p>
+          )}
         
 
         <div className="flex justify-center">
