@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import EmployeeForm from './components/EmployeeForm';
 
 
@@ -10,6 +11,13 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
+          <Image 
+            src="/logo-wh.png" 
+            alt="Wealth Health Logo" 
+            width={100} 
+            height={50} 
+            className="mx-auto mb-6" 
+          />
           <h1 className="text-4xl font-bold text-gray-900 mb-8">HRnet</h1>
           <div className="mb-8">
             <Link 
