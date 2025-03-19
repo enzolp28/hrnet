@@ -100,32 +100,34 @@ export default function EmployeeList() {
 
   return (
     <div className="w-full p-4">
-      <div className="mb-4 flex justify-between items-center">
-        <Link href="/" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+      <div className="mb-4 flex flex-col md:flex-row gap-4 md:justify-between md:items-center">
+        <Link href="/" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 w-full md:w-auto text-center md:text-left">
           ← Return to Form
         </Link>
-        <div className="flex items-center">
-          <label className="mr-2">Show entries:</label>
-          <select
-            className="border rounded p-1"
-            value={entriesPerPage}
-            onChange={handleEntriesPerPageChange}
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
-        </div>
-        <div className="flex items-center">
-          <label className="mr-2">Search:</label>
-          <input
-            type="text"
-            className="border rounded p-1"
-            value={searchTerm}
-            onChange={handleSearch}
-            placeholder="Search..."
-          />
+        <div className="flex flex-wrap gap-4 justify-between md:justify-end w-full md:w-auto">
+          <div className="flex items-center">
+            <label className="mr-2 whitespace-nowrap">Show entries:</label>
+            <select
+              className="border rounded p-1"
+              value={entriesPerPage}
+              onChange={handleEntriesPerPageChange}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+          <div className="flex items-center">
+            <label className="mr-2">Search:</label>
+            <input
+              type="text"
+              className="border rounded p-1 w-full min-w-[150px]"
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search..."
+            />
+          </div>
         </div>
       </div>
 
