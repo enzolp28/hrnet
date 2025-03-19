@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useEmployees } from '../context/EmployeeContext';
 
 interface Employee {
   firstName: string;
@@ -32,11 +33,8 @@ const columns: Column[] = [
   { key: 'zipCode', label: 'Zip Code' },
 ];
 
-interface EmployeeListProps {
-  employees: Employee[];
-}
-
-export default function EmployeeList({ employees }: EmployeeListProps) {
+export default function EmployeeList() {
+  const { employees } = useEmployees();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Employee;
@@ -73,7 +71,7 @@ export default function EmployeeList({ employees }: EmployeeListProps) {
   }, [filteredEmployees, sortConfig]);
 
   // Pagination
-  const totalPages = Math.ceil(sortedEmployees.length / entriesPerPage);
+  const totalPages = Math.ceil(sortedEmployees.length / entriesPerPage); //Math.ceil arrondit un nombre à l'entier supérieur
   const paginatedEmployees = sortedEmployees.slice(
     (currentPage - 1) * entriesPerPage,
     currentPage * entriesPerPage

@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { useEmployees } from '../context/EmployeeContext';
-// import Modal from './Modal';
-import  {Modal}  from 'enzo-ts-rc';
+import  { Modal }  from 'enzo-ts-rc';
 // import { Modal} from 'enzolp-p14-react-library';
-import { Button } from 'enzolp-p14-react-library'
+// import { Button } from 'enzolp-p14-react-library'
 import { states } from '../data/states';
 import Select from './Select';
 import { z } from 'zod';
@@ -33,11 +32,11 @@ const employeeSchema = z.object({
     const date = new Date(val);
     const today = new Date();
     return date < today && date > new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
-  }, { message: "Please enter a valid date of birth" }),
+  }, { message: "Please enter a valid date of birth" }),//verifie que la date de naissance est dans le passé et à -100ans
   startDate: z.string().refine(val => {
     const date = new Date(val);
     return !isNaN(date.getTime());
-  }, { message: "Please enter a valid start date" }),
+  }, { message: "Please enter a valid start date" }),//verifie que la date de début est au bon format
   street: z.string().min(1, { message: "Street is required" }),
   city: z.string().min(1, { message: "City is required" }),
   state: z.string().min(1, { message: "State is required" }),
@@ -150,6 +149,7 @@ export default function EmployeeForm() {
               <p className="mt-1 text-sm text-red-600">{errors.dateOfBirth.message}</p>
             )}
           </div>
+      
 
           <div>
             <label htmlFor="start-date" className="block text-sm font-medium text-gray-700">
@@ -166,7 +166,6 @@ export default function EmployeeForm() {
             )}
           </div>
         </div>
-        <Button />
         <fieldset className="border rounded-md p-4">
           <legend className="text-lg font-medium text-gray-700 px-2">Address</legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -251,15 +250,19 @@ export default function EmployeeForm() {
           </button>
         </div>
       </form>
-
       {showModal && (
-        <Modal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          title="Success!"
-          message="Employee Created!"
-        />
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
+          <div className="pointer-events-auto">
+            <Modal
+              isOpen={showModal}
+              onClose={() => setShowModal(false)}
+              title="Success!"
+              message="Employee Created!"
+            />
+          </div>
+        </div>
       )}
+      
     </div>
   );
 }

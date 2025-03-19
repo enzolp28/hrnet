@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { mockEmployees } from '../data/mockEmployees';
 
 interface Employee {
@@ -24,6 +24,8 @@ interface EmployeeContextType {
 const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
 
 export function EmployeeProvider({ children }: { children: ReactNode }) {
+
+  // Stocke la liste des employés
   const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
 
   const addEmployee = (employee: Employee) => {
