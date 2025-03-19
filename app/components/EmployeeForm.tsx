@@ -31,8 +31,10 @@ const employeeSchema = z.object({
   dateOfBirth: z.string().refine(val => {
     const date = new Date(val);
     const today = new Date();
-    return date < today && date > new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
-  }, { message: "Please enter a valid date of birth" }),//verifie que la date de naissance est dans le passé et à -100ans
+    const minAgeDate = new Date();
+    minAgeDate.setFullYear(today.getFullYear() - 16);
+    return date < today && date <= minAgeDate && date > new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+  }, { message: "Please enter a valid date of birth (minimum age: 16 years)" }),//verifie que la date de naissance est dans le passé, que la personne a au moins 16 ans et au maximum 100 ans
   startDate: z.string().refine(val => {
     const date = new Date(val);
     return !isNaN(date.getTime());
